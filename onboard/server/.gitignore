@@ -6,12 +6,13 @@ out
 dist
 *.tgz
 
+# log output (not the src/frontend/logs source directory)
+/logs
+
 # code coverage
 coverage
 *.lcov
 
-# logs
-logs
 _.log
 report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
