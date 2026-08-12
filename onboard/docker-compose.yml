@@ -1,0 +1,39 @@
+services:
+  llama-cpp:
+    image: ghcr.io/ggml-org/llama.cpp:server
+    container_name: llama-cpp
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./models:/models
+    command: >
+      --model /models/gemma-3-1b-it-Q4_K_M.gguf
+      --port 8080
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    container_name: server
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    environment:
+      - LLAMA_URL=http://llama-cpp:8080
+      # The backend stack (backend/docker-compose.yml) is a separate compose
+      # project/network, so it can't be reached by container name — reach it
+      # via the port it publishes on the host instead.
+      - BACKEND_URL=http://host.docker.internal:4000
+    extra_hosts:
+      # host.docker.internal is built into Docker Desktop (Mac/Windows); on
+      # Linux this maps it to the host gateway so it resolves there too.
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      llama-cpp:
+        condition: service_healthy

@@ -1,0 +1,124 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "id": "900fc229-142a-42c3-b277-a2fda6f10fd7",
+  "prevIds": [
+    "00000000-0000-0000-0000-000000000000"
+  ],
+  "ddl": [
+    {
+      "name": "driver_profile",
+      "entityType": "tables"
+    },
+    {
+      "type": "integer",
+      "notNull": false,
+      "autoincrement": true,
+      "default": null,
+      "generated": null,
+      "name": "id",
+      "entityType": "columns",
+      "table": "driver_profile"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "age",
+      "entityType": "columns",
+      "table": "driver_profile"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "licenseType",
+      "entityType": "columns",
+      "table": "driver_profile"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "yearsExperience",
+      "entityType": "columns",
+      "table": "driver_profile"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "mechanicalActions",
+      "entityType": "columns",
+      "table": "driver_profile"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "selfRatedProficiency",
+      "entityType": "columns",
+      "table": "driver_profile"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "preferredGuidanceStyle",
+      "entityType": "columns",
+      "table": "driver_profile"
+    },
+    {
+      "type": "text",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "physicalLimitations",
+      "entityType": "columns",
+      "table": "driver_profile"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "physicalLimitationsOther",
+      "entityType": "columns",
+      "table": "driver_profile"
+    },
+    {
+      "type": "text",
+      "notNull": false,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "maintenanceRelationship",
+      "entityType": "columns",
+      "table": "driver_profile"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "driver_profile_pk",
+      "table": "driver_profile",
+      "entityType": "pks"
+    }
+  ],
+  "renames": []
+}

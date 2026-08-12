@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "types": ["bun"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "module": "Preserve",
+    "moduleResolution": "bundler",
+    "paths": {
+      "@/*": ["./src/*"],
+    },
+  },
+}
