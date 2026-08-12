@@ -1,0 +1,101 @@
+services:
+  embedding-llm:
+    image: ghcr.io/ggml-org/llama.cpp:server
+    container_name: embedding-llm
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./backend/models:/models
+    command: >
+      --model /models/Qwen3-Embedding-0.6B-Q8_0.gguf
+      --port 5173
+      --embedding
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5173/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  chat-llm:
+    image: ghcr.io/ggml-org/llama.cpp:server
+    container_name: chat-llm
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./onboard/models:/models
+    command: >
+      --model /models/gemma-3-1b-it-Q4_K_M.gguf
+      --port 8080
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  backend-server:
+    build:
+      context: ./backend/server
+      dockerfile: Dockerfile.dev
+    container_name: backend-server
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend/server:/app
+      - /app/node_modules
+    environment:
+      - EMBEDDING_URL=http://embedding-llm:5173
+    env_file:
+      - ./backend/server/.env
+    depends_on:
+      embedding-llm:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  backend-dashboard:
+    build:
+      context: ./backend/dashboard
+      dockerfile: Dockerfile.dev
+    container_name: backend-dashboard
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend/dashboard:/app
+      - /app/node_modules
+    environment:
+      # Browser-side fetches, so this must be reachable from the host, not
+      # the "backend-server" container hostname.
+      - VITE_API_URL=http://localhost:4000
+      # Route loaders can also run server-side (SSR), inside this container —
+      # there "localhost" is the dashboard itself, so use the in-network
+      # service address instead.
+      - VITE_API_URL_INTERNAL=http://backend-server:4000
+    depends_on:
+      backend-server:
+        condition: service_healthy
+
+  onboard-server:
+    build:
+      context: ./onboard/server
+      dockerfile: Dockerfile.dev
+    container_name: onboard-server
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./onboard/server:/app
+      - /app/node_modules
+    environment:
+      - LLAMA_URL=http://chat-llm:8080
+      # Everything now lives in one compose project/network, so the backend
+      # stack is reachable by service name instead of host.docker.internal.
+      - BACKEND_URL=http://backend-server:4000
+    env_file:
+      - ./onboard/server/.env
+    depends_on:
+      chat-llm:
+        condition: service_healthy
+      backend-server:
+        condition: service_healthy
