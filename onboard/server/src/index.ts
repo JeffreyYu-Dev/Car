@@ -48,7 +48,10 @@ function recordLog(payload: MonitoringPayload) {
 // endpoints below need from it.
 function parseBackendResponse(
   entry: DiagnosticEntry,
-): { historicalQueryId: number | null; cloudLlmResponse: string | null } | null {
+): {
+  historicalQueryId: number | null;
+  cloudLlmResponse: string | null;
+} | null {
   if (!entry.response) return null;
   try {
     const parsed = JSON.parse(entry.response) as {
@@ -332,7 +335,10 @@ const server = serve({
         } catch {
           return Response.json({ error: "Invalid JSON body" }, { status: 400 });
         }
-        if (typeof body.message !== "string" || body.message.trim().length === 0) {
+        if (
+          typeof body.message !== "string" ||
+          body.message.trim().length === 0
+        ) {
           return Response.json(
             { error: "message is required" },
             { status: 400 },

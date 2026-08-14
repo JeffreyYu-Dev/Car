@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AlertTriangle, BellRing, StickyNote } from "lucide-react";
 import { toast } from "sonner";
 import { OnboardingFlow } from "@/frontend/components/onboarding/OnboardingFlow";
 import { DiagnosisPanel } from "@/frontend/components/diagnostics/DiagnosisPanel";
@@ -10,6 +9,7 @@ import {
   latestEntryForDriver,
   useDriverDiagnostics,
 } from "@/frontend/diagnostics/useDriverDiagnostics";
+import { DELIVERY_CHANNEL_META } from "@/frontend/diagnostics/delivery-channel";
 import {
   parseBackendResponse,
   type DiagnosisAction,
@@ -53,26 +53,30 @@ function playAlarmBeep() {
 // urgent, persistent alert (+ audio alarm); reminders get a normal toast;
 // advisories get a quiet, non-intrusive one.
 function notifyDriver(action: DiagnosisAction) {
+  const meta = DELIVERY_CHANNEL_META[action.deliveryChannel];
+  const Icon = meta.actionIcon;
+  const title = `Sent to ${meta.device}`;
+
   switch (action.severity) {
     case "critical":
-      toast.error("Urgent — vehicle needs attention", {
+      toast.error(title, {
         description: action.message,
-        icon: <AlertTriangle className="size-4" />,
+        icon: <Icon className="size-4" />,
         duration: 30000,
       });
       playAlarmBeep();
       break;
     case "reminder":
-      toast.warning("Vehicle reminder", {
+      toast.warning(title, {
         description: action.message,
-        icon: <BellRing className="size-4" />,
+        icon: <Icon className="size-4" />,
         duration: 8000,
       });
       break;
     case "advisory":
-      toast.message("Vehicle advisory", {
+      toast.message(title, {
         description: action.message,
-        icon: <StickyNote className="size-4" />,
+        icon: <Icon className="size-4" />,
         duration: 6000,
       });
       break;
