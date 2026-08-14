@@ -1,13 +1,10 @@
 import { useState } from "react";
 import {
   AlertTriangle,
-  BellRing,
   Loader2,
   MessageCircle,
   Send,
-  Siren,
   Stethoscope,
-  StickyNote,
   ThumbsDown,
   ThumbsUp,
 } from "lucide-react";
@@ -23,53 +20,12 @@ import {
 } from "@/frontend/components/ui/card";
 import { Input } from "@/frontend/components/ui/input";
 import { Separator } from "@/frontend/components/ui/separator";
+import { ActionMessage } from "@/frontend/components/diagnostics/DeliveryChannelIndicator";
 import {
   parseBackendResponse,
-  type DeliveryChannel,
-  type DiagnosisAction,
   type DiagnosticEntry,
 } from "@/frontend/diagnostics/types";
 import { cn } from "@/frontend/lib/utils";
-
-// Paper's action module: three delivery methods selected from severity —
-// critical faults are an urgent dashboard alert (audio alarm, see
-// notifyDriver in HomePage.tsx), reminders show at an appropriate time, and
-// advisories are a passive memo the driver checks at their convenience.
-const DELIVERY_CHANNEL_META: Record<
-  DeliveryChannel,
-  { label: string; icon: typeof Siren; className: string }
-> = {
-  dashboard_alert: {
-    label: "Urgent alert",
-    icon: Siren,
-    className: "border-destructive/40 bg-destructive/10 text-destructive",
-  },
-  dashboard_reminder: {
-    label: "Reminder",
-    icon: BellRing,
-    className:
-      "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400",
-  },
-  memo: {
-    label: "Advisory memo",
-    icon: StickyNote,
-    className: "border-border bg-muted text-muted-foreground",
-  },
-};
-
-function ActionMessage({ action }: { action: DiagnosisAction }) {
-  const meta = DELIVERY_CHANNEL_META[action.deliveryChannel];
-  const Icon = meta.icon;
-  return (
-    <div className={cn("flex items-start gap-2 rounded-md border p-3", meta.className)}>
-      <Icon className="mt-0.5 size-4 shrink-0" />
-      <div className="flex flex-col gap-1">
-        <span className="text-xs font-semibold uppercase tracking-wide">{meta.label}</span>
-        <p className="whitespace-pre-wrap text-sm text-foreground">{action.message}</p>
-      </div>
-    </div>
-  );
-}
 
 function StatusBadge({ status }: { status: DiagnosticEntry["status"] }) {
   switch (status) {

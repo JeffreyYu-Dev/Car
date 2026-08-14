@@ -2,14 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import {
   AlertCircle,
-  BellRing,
   CheckCircle2,
   Circle,
   Loader2,
   RefreshCw,
-  Siren,
   Stethoscope,
-  StickyNote,
   XCircle,
   Zap,
 } from "lucide-react";
@@ -31,7 +28,12 @@ import {
 } from "@/frontend/components/ui/empty";
 import { Skeleton } from "@/frontend/components/ui/skeleton";
 import { cn } from "@/frontend/lib/utils";
-import type { ChatMessage, DiagnosticEntry } from "@/frontend/diagnostics/types";
+import { DELIVERY_CHANNEL_META } from "@/frontend/diagnostics/delivery-channel";
+import type {
+  BackendResponsePayload,
+  ChatMessage,
+  DiagnosticEntry,
+} from "@/frontend/diagnostics/types";
 
 const MAX_ROWS = 100;
 
@@ -179,61 +181,6 @@ function PromptMessages({ prompt }: { prompt: DiagnosticEntry["prompt"] }) {
   );
 }
 
-type Severity = "critical" | "reminder" | "advisory";
-type DeliveryChannel = "dashboard_alert" | "dashboard_reminder" | "memo";
-
-interface DiagnosisAction {
-  message: string;
-  severity: Severity;
-  deliveryChannel: DeliveryChannel;
-  usedFallback: boolean;
-}
-
-interface BackendResponsePayload {
-  historicalQueryId?: number | null;
-  matchedHistoricalQueries?: {
-    queryText: string;
-    similarity: number;
-    weight: number;
-  }[];
-  retrievedKnowledge?: {
-    content: string;
-    source?: string;
-    relevance?: number;
-    reliabilityScore?: number;
-    rank?: number;
-  }[];
-  cloudLlmPrompt?: ChatMessage[];
-  // Raw text from the cloud LLM — now a JSON-encoded {message, severity}
-  // string (see backend's llm/prompt.ts); `action` below is the parsed,
-  // driver-facing form and should be preferred for display.
-  cloudLlmResponse?: string | null;
-  cloudLlmError?: string | null;
-  action?: DiagnosisAction | null;
-}
-
-const DELIVERY_CHANNEL_META: Record<
-  DeliveryChannel,
-  { label: string; icon: typeof Siren; className: string }
-> = {
-  dashboard_alert: {
-    label: "Urgent alert",
-    icon: Siren,
-    className: "border-destructive/40 bg-destructive/10 text-destructive",
-  },
-  dashboard_reminder: {
-    label: "Reminder",
-    icon: BellRing,
-    className:
-      "border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-400",
-  },
-  memo: {
-    label: "Advisory memo",
-    icon: StickyNote,
-    className: "border-border bg-muted text-muted-foreground",
-  },
-};
-
 // Full, un-truncated content — used for the diagnosis text and prompt/
 // knowledge bodies below, as opposed to the line-clamped list rows.
 function ExpandableText({ text, className }: { text: string; className?: string }) {
@@ -269,12 +216,13 @@ function BackendResponseView({ response }: { response: string }) {
           )}
         >
           {(() => {
-            const Icon = DELIVERY_CHANNEL_META[parsed.action.deliveryChannel].icon;
+            const Icon = DELIVERY_CHANNEL_META[parsed.action.deliveryChannel].actionIcon;
             return <Icon className="mt-0.5 size-4 shrink-0" />;
           })()}
           <div className="flex flex-col gap-1">
             <p className="font-semibold uppercase text-muted-foreground">
-              {DELIVERY_CHANNEL_META[parsed.action.deliveryChannel].label} (severity:{" "}
+              Sent to {DELIVERY_CHANNEL_META[parsed.action.deliveryChannel].device} ·{" "}
+              {DELIVERY_CHANNEL_META[parsed.action.deliveryChannel].action} (severity:{" "}
               {parsed.action.severity})
             </p>
             <ExpandableText text={parsed.action.message} className="text-sm text-foreground" />
