@@ -22,10 +22,10 @@ const createEnv = () => {
     // Cloud response-generator LLM. Any OpenAI-compatible chat-completions
     // endpoint works here (Groq, OpenAI, together.ai, a self-hosted
     // llama.cpp/vLLM server, ...) — swapping providers is just changing
-    // these three values, not the code. Defaults to Groq's free Llama 3.3
-    // 70B model.
+    // these three values, not the code. Defaults to Groq's gpt-oss-120b
+    // (llama-3.3-70b-versatile was decommissioned by Groq on 2026-08-16).
     CLOUD_LLM_BASE_URL: z.string().default("https://api.groq.com/openai/v1"),
-    CLOUD_LLM_MODEL: z.string().default("llama-3.3-70b-versatile"),
+    CLOUD_LLM_MODEL: z.string().default("openai/gpt-oss-120b"),
     // Sent as `Authorization: Bearer <key>` when set. Left unset, requests
     // go out with no auth header (e.g. a local llama.cpp server).
     CLOUD_LLM_API_KEY: z.string().optional(),
