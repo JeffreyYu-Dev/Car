@@ -419,5 +419,9 @@ export default {
   // Platforms like Railway assign the port at runtime and expect the process
   // to bind whatever they hand it; 4000 is the local/compose default.
   port: Number(process.env.PORT ?? 4000),
+  // Railway's private network is IPv6-only, so a service that binds 0.0.0.0
+  // is unreachable at <service>.railway.internal however healthy it looks.
+  // Set BIND_HOST=:: there; docker compose is IPv4 and keeps the default.
+  hostname: process.env.BIND_HOST ?? "0.0.0.0",
   websocket,
 };

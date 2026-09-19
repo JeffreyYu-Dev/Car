@@ -313,7 +313,17 @@ Create one service per directory, all from this repo:
 Then wire them together using Railway's private network:
 
 ```bash
+# embedding-llm
+BIND_HOST=::
+PORT=5173
+
+# chat-llm
+BIND_HOST=::
+PORT=8080
+
 # backend-server
+BIND_HOST=::
+PORT=4000
 EMBEDDING_URL=http://embedding-llm.railway.internal:5173
 DATABASE_URL=...          # Neon
 QDRANT_ENDPOINT=...
@@ -321,6 +331,7 @@ QDRANT_API_KEY=...
 CLOUD_LLM_API_KEY=...     # Groq
 
 # onboard-server
+BIND_HOST=::
 LLAMA_URL=http://chat-llm.railway.internal:8080
 BACKEND_URL=http://backend-server.railway.internal:4000
 DATABASE=/data/db.sqlite  # on the mounted volume
@@ -329,6 +340,12 @@ DATABASE=/data/db.sqlite  # on the mounted volume
 VITE_API_URL=https://<backend-server public domain>
 VITE_API_URL_INTERNAL=http://backend-server.railway.internal:4000
 ```
+
+`BIND_HOST=::` is not optional. **Railway's private network is IPv6-only**, so
+a service bound to `0.0.0.0` is unreachable at `<service>.railway.internal` no
+matter how healthy it looks — the deploy goes green and every internal call
+times out. `PORT` is pinned on the services others address by name, so those
+internal URLs stay predictable.
 
 Keep the two model servers on private domains only. They have no
 authentication — a public domain would expose free inference to anyone who

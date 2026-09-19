@@ -28,9 +28,13 @@ RUN mkdir -p /models \
 
 # The base image sets the server binary as its ENTRYPOINT, which leaves no
 # shell to expand $PORT with. Clearing it and going through sh does.
+#
+# BIND_HOST exists because Railway's private network is IPv6-only: a server
+# bound to 0.0.0.0 is unreachable at <service>.railway.internal however
+# healthy it looks. Set BIND_HOST=:: there; docker compose keeps the default.
 ENTRYPOINT []
 CMD ["/bin/sh", "-c", "exec $(command -v llama-server || echo /app/llama-server) \
   --model \"$MODEL_PATH\" \
-  --host 0.0.0.0 \
+  --host \"${BIND_HOST:-0.0.0.0}\" \
   --port \"${PORT:-8080}\" \
   ${LLAMA_EXTRA_ARGS}"]
