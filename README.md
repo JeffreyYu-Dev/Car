@@ -15,6 +15,18 @@ That bandwidth constraint is why almost every design decision below exists.
 Every stage is about **compressing information down before transmission, then
 re-expanding it with context after it lands in the cloud.**
 
+## 🚗 Live
+
+| | |
+|---|---|
+| **On-board unit** (driver UI) | https://onboard-server-production.up.railway.app |
+| **Backend dashboard** (traces, knowledge base, feedback) | https://backend-dashboard-production-10dc.up.railway.app |
+| **Backend API** | https://backend-server-production-36eb.up.railway.app |
+
+Running on Railway: the two llama.cpp model servers, both application servers,
+and the dashboard, with Neon and Qdrant Cloud behind them. The on-board Gemma 3
+1B generates at ~75 tokens/sec on CPU.
+
 ---
 
 ## Contents
