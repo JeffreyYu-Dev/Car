@@ -1,4 +1,8 @@
 node_modules
-.git
 dist
-.tanstack
+.git
+.env
+.env.*
+!.env.example
+*.gguf
+.DS_Store

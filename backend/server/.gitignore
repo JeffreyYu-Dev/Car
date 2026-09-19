@@ -3,3 +3,11 @@ node_modules/
 
 # models
 models/*.gguf
+
+# env — never commit real credentials, see .env.example
+.env
+.env.*
+!.env.example
+
+# macOS
+.DS_Store

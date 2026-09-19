@@ -416,6 +416,8 @@ app.get("/api/traces/:id", (c) => {
 
 export default {
   fetch: app.fetch,
-  port: 4000,
+  // Platforms like Railway assign the port at runtime and expect the process
+  // to bind whatever they hand it; 4000 is the local/compose default.
+  port: Number(process.env.PORT ?? 4000),
   websocket,
 };

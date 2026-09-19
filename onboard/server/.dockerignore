@@ -1,1 +1,8 @@
 node_modules
+dist
+.git
+.env
+.env.*
+!.env.example
+*.gguf
+.DS_Store

@@ -1,1 +1,7 @@
 *.gguf
+.DS_Store
+
+# env — never commit real credentials, see each service's .env.example
+.env
+.env.*
+!.env.example

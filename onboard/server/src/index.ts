@@ -144,7 +144,9 @@ async function handleFault(payload: MonitoringPayload) {
 }
 
 const server = serve({
-  port: 3000,
+  // Platforms like Railway assign the port at runtime and expect the process
+  // to bind whatever they hand it; 3000 is the local/compose default.
+  port: Number(process.env.PORT ?? 3000),
   fetch(req, server) {
     const url = new URL(req.url);
     if (server.upgrade(req) && url.pathname === "/ws") {
@@ -186,8 +188,12 @@ const server = serve({
       async POST(req) {
         server.timeout(req, 0);
 
+        // The llama.cpp server's address is only "llama-cpp" under docker
+        // compose; anywhere else (Railway, bare metal) it is whatever
+        // LLAMA_URL names. Same source of truth as the real pipeline in
+        // llama-cpp.ts.
         const response = await fetch(
-          "http://llama-cpp:8080/v1/chat/completions",
+          `${env.llamaUrl}/v1/chat/completions`,
           {
             method: "POST",
             headers: {
