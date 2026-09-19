@@ -98,8 +98,33 @@ app.use("*", async (c, next) => {
   if (error) throw new Error(error);
 });
 
-await ensureHistoricalQueriesCollection();
-await ensureKnowledgeBaseCollection();
+// Qdrant has to be reachable for the pipeline to do anything useful, but
+// awaiting this at startup made it fatal: a managed cluster that was asleep,
+// restarting, or briefly unreachable took the whole process down, and the
+// platform restarted it into the same failure forever. Nothing else here
+// needs Qdrant to boot — /health, the trace endpoints and the dashboard all
+// work without it — so setup retries in the background instead and the
+// server comes up either way. A request that genuinely needs a collection
+// still fails loudly on its own.
+void (async function ensureCollections() {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      await ensureHistoricalQueriesCollection();
+      await ensureKnowledgeBaseCollection();
+      console.log("qdrant: collections ready");
+      return;
+    } catch (err) {
+      // Back off to a 30s ceiling: quick enough to catch a restarting
+      // cluster, slow enough not to spin while one is switched off.
+      const delayMs = Math.min(30_000, 1000 * 2 ** (attempt - 1));
+      console.error(
+        `qdrant: collection setup failed (attempt ${attempt}), retrying in ${delayMs}ms:`,
+        err instanceof Error ? err.message : err,
+      );
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+})();
 
 app.get("/", (c) => {
   return c.text("Hello Hono!");
