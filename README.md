@@ -356,6 +356,29 @@ roughly 1.5GB of RAM and Qwen3-Embedding-0.6B at Q8 about 1GB, and both run on
 CPU, so generation is slower than on the paper's Jetson Nano prototype. Five
 services plus that memory footprint is beyond any free tier.
 
+**Tune the model servers, or they will not work.** `LLAMA_EXTRA_ARGS` is passed
+straight through to `llama-server`, and two defaults are actively harmful in a
+container:
+
+```bash
+# embedding-llm
+LLAMA_EXTRA_ARGS=--ctx-size 2048 --threads 8 --parallel 1 --batch-size 512 --ubatch-size 512
+
+# chat-llm
+LLAMA_EXTRA_ARGS=--ctx-size 8192 --threads 8 --parallel 1
+```
+
+- **Context size.** llama.cpp defaults to the model's full trained window and
+  allocates a KV cache to match — 131072 tokens here. That is gigabytes for a
+  0.6B embedding model, and the container is OOM-killed on startup with no
+  error message, just a silent restart loop. Neither model needs more than a
+  few thousand tokens for this workload.
+- **Threads.** llama.cpp sizes its thread pool from the *host's* core count,
+  not the container's share — it started 48 threads on a container entitled to
+  a fraction of that. The oversubscription thrashes: prompt processing ran at
+  **0.26 tokens/sec** before `--threads` was pinned. Set it to the vCPU count
+  you are actually paying for.
+
 If you'd rather not self-host the models, both are swappable for hosted
 OpenAI-compatible endpoints by changing `EMBEDDING_URL` and `LLAMA_URL` — at
 the cost of the "small model actually runs in the car" property that the paper
